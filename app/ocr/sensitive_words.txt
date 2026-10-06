@@ -1,0 +1,19 @@
+# Mỗi dòng 1 từ/cụm từ nhạy cảm cần che trong text sau OCR.
+# Dòng bắt đầu bằng # là comment, bị bỏ qua.
+# So khớp theo ranh giới từ, không phân biệt hoa/thường, không phân biệt tiền tố/hậu tố dính liền.
+# Tự thêm/bớt từ theo nhu cầu thực tế của bạn.
+đụ
+đéo
+địt
+đĩ
+lồn
+cặc
+buồi
+đm
+vcl
+vloz
+vl
+đcm
+cmm
+clgt
+địt mẹ mày

@@ -1,0 +1,78 @@
+# version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management-alpine
+    container_name: ocr-rabbitmq
+    hostname: rabbitmq-host
+    environment:
+      - RABBITMQ_DEFAULT_USER=your_rabbit_user
+      - RABBITMQ_DEFAULT_PASS=your_rabbit_password
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit consumer_timeout 7200000
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+    restart: always
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: ocr-postgres
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=your_celery_db_user
+      - POSTGRES_PASSWORD=your_celery_db_password
+      - POSTGRES_DB=celery_results
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: always
+
+  milvus-etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: milvus-etcd
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - milvus_etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    restart: always
+
+  milvus-minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    container_name: milvus-minio
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - milvus_minio_data:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    restart: always
+
+  milvus-standalone:
+    image: milvusdb/milvus:v2.4.5
+    container_name: milvus-standalone
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: milvus-etcd:2379
+      MINIO_ADDRESS: milvus-minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - milvus-etcd
+      - milvus-minio
+    restart: always
+
+volumes:
+  rabbitmq_data:  
+  postgres_data:
+  milvus_etcd_data:
+  milvus_minio_data:
+  milvus_data:

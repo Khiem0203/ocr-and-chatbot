@@ -1,0 +1,25 @@
+[Unit]
+Description=vLLM Service for AITeamVN/GRPO-VI-Qwen2-7B-RAG
+After=network.target
+
+[Service]
+User=your_user
+Group=your_user
+WorkingDirectory=/path/to/home
+Environment="PATH=/path/to/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="CUDA_VISIBLE_DEVICES=1"
+Environment="HF_HUB_OFFLINE=1"
+ExecStart=/path/to/venv/bin/vllm serve \
+    "/path/to/models--AITeamVN--GRPO-VI-Qwen2-7B-RAG" \
+    --trust-remote-code \
+    --port 8114 \
+    --max-model-len 8192 \
+    --gpu-memory-utilization 0.7 \
+    --max-num-seqs 8 \
+    --enable-prefix-caching \
+    --disable-log-stats
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

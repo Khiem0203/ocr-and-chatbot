@@ -1,0 +1,2 @@
+Đây là văn bản mẫu dùng để kiểm thử pipeline OCR + embedding trên local.
+Văn bản này không cần OCR vì đã là dữ liệu số.
